@@ -1,0 +1,35 @@
+# Dependências
+node_modules
+
+# Variáveis de ambiente (manter fora do versionamento)
+.env
+.env.local
+.env.*.local
+
+# Prisma client gerado
+/generated/prisma
+
+# Builds / saídas
+dist
+build
+.next
+out
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testes
+coverage
+
+# Sistema operacional / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# Configuração local do Claude (específica da máquina)
+.claude/settings.local.json

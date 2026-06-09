@@ -1,0 +1,122 @@
+@import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Tipografia */
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-jakarta), sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Brand — teal/verde-água (saúde, cuidado, calma) */
+  --color-brand-50: #f0fdfa;
+  --color-brand-100: #cffafe;
+  --color-brand-200: #99f6e4;
+  --color-brand-300: #5eead4;
+  --color-brand-400: #2dd4bf;
+  --color-brand-500: #14b8a6;
+  --color-brand-600: #0d9488;
+  --color-brand-700: #0f766e;
+  --color-brand-800: #115e59;
+  --color-brand-900: #134e4a;
+  --color-brand-950: #042f2e;
+
+  /* Accent — coral quente (destaque, energia) */
+  --color-accent-50: #fff5ed;
+  --color-accent-100: #ffe9d5;
+  --color-accent-200: #fed0aa;
+  --color-accent-300: #fdb074;
+  --color-accent-400: #fb8a3c;
+  --color-accent-500: #f96f1c;
+  --color-accent-600: #ea5512;
+  --color-accent-700: #c23f11;
+  --color-accent-800: #9a3316;
+  --color-accent-900: #7c2d15;
+  --color-accent-950: #431409;
+
+  /* Sombras com tinta quente em vez de preto puro */
+  --shadow-soft: 0 1px 2px rgba(40, 33, 22, 0.04), 0 4px 16px rgba(40, 33, 22, 0.05);
+  --shadow-lift: 0 4px 12px rgba(40, 33, 22, 0.06), 0 16px 40px rgba(40, 33, 22, 0.08);
+
+  --animate-fade-up: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-fade-in: fade-in 0.4s ease both;
+}
+
+:root {
+  --canvas: #faf7f2;
+  --canvas-elevated: #ffffff;
+  --ink: #1c1917;
+  --ink-soft: #57534e;
+  --hairline: #ece6dc;
+}
+
+.dark {
+  --canvas: #0a0b0d;
+  --canvas-elevated: #15171b;
+  --ink: #e7e5e4;
+  --ink-soft: #a8a29e;
+  --hairline: #26282e;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+body {
+  background-color: var(--canvas);
+  /* Brilho quente sutil no canto superior — dá vida ao canvas */
+  background-image:
+    radial-gradient(1100px 520px at 12% -8%, rgba(13, 148, 136, 0.06), transparent 60%),
+    radial-gradient(900px 480px at 100% 0%, rgba(249, 111, 28, 0.05), transparent 55%);
+  background-attachment: fixed;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+::selection {
+  background: var(--color-brand-200);
+  color: var(--color-brand-900);
+}
+
+/* Scrollbar refinada */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120, 113, 108, 0.35) transparent;
+}
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: rgba(120, 113, 108, 0.3);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 113, 108, 0.5);
+  background-clip: padding-box;
+}
+
+/* Helpers reutilizáveis */
+.surface {
+  background: var(--canvas-elevated);
+  border: 1px solid var(--hairline);
+}
+.text-ink { color: var(--ink); }
+.text-ink-soft { color: var(--ink-soft); }
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; color: #000; }
+}

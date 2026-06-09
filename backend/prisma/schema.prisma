@@ -1,0 +1,300 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Clinica {
+  id                String             @id @default(cuid())
+  nome              String
+  cnpj              String?            @unique
+  telefone          String?
+  email             String?
+  endereco          String?
+  logo              String?
+  ativo             Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  agendamentos      Agendamento[]
+  atendimentos      Atendimento[]
+  cobranças         Cobranca[]
+  estoque           Estoque[]
+  pacientes         Paciente[]
+  solicitacoesExame SolicitacaoExame[]
+  tutores           Tutor[]
+  usuarios          Usuario[]
+  vacinacoes        Vacinacao[]
+}
+
+model Usuario {
+  id                  String               @id @default(cuid())
+  nome                String
+  email               String               @unique
+  senha               String
+  role                Role                 @default(RECEPCIONISTA)
+  ativo               Boolean              @default(true)
+  clinicaId           String
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  agendamentos        Agendamento[]
+  atendimentos        Atendimento[]
+  etapasProcessamento EtapaProcessamento[]
+  itensLaboratorio    ItemSolicitacao[]
+  vacinacoes          Vacinacao[]
+  clinica             Clinica              @relation(fields: [clinicaId], references: [id])
+  refreshTokens       RefreshToken[]
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  hashToken String   @unique
+  usuarioId String
+  expiresAt DateTime
+  revogado  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+}
+
+model Tutor {
+  id        String     @id @default(cuid())
+  nome      String
+  cpf       String?
+  telefone  String?
+  email     String?
+  endereco  String?
+  clinicaId String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  pacientes Paciente[]
+  clinica   Clinica    @relation(fields: [clinicaId], references: [id])
+
+  @@unique([cpf, clinicaId])
+}
+
+model Paciente {
+  id           String        @id @default(cuid())
+  nome         String
+  especie      String
+  raca         String?
+  sexo         String?
+  peso         Float?
+  dataNasc     DateTime?
+  alergias     String?
+  tutorId      String
+  clinicaId    String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  agendamentos Agendamento[]
+  atendimentos Atendimento[]
+  vacinacoes   Vacinacao[]
+  clinica      Clinica       @relation(fields: [clinicaId], references: [id])
+  tutor        Tutor         @relation(fields: [tutorId], references: [id])
+}
+
+model Medicamento {
+  id                String                   @id @default(cuid())
+  nome              String
+  principioAtivo    String?
+  categoria         String?
+  descricao         String?
+  unidade           String?
+  ativo             Boolean                  @default(true)
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+  estoque           Estoque[]
+  interacoesOrigem  InteracaoMedicamentosa[] @relation("MedicamentoOrigem")
+  interacoesDestino InteracaoMedicamentosa[] @relation("MedicamentoDestino")
+  itensPrescricao   ItemPrescricao[]
+  variantes         MedicamentoVariante[]
+}
+
+model MedicamentoVariante {
+  id              String           @id @default(cuid())
+  medicamentoId   String
+  concentracao    String
+  apresentacao    String?
+  fabricante      String?
+  createdAt       DateTime         @default(now())
+  itensPrescricao ItemPrescricao[]
+  medicamento     Medicamento      @relation(fields: [medicamentoId], references: [id])
+}
+
+model InteracaoMedicamentosa {
+  id             String      @id @default(cuid())
+  medicamentoAId String
+  medicamentoBId String
+  tipo           String
+  descricao      String
+  severidade     String
+  createdAt      DateTime    @default(now())
+  medicamentoA   Medicamento @relation("MedicamentoOrigem", fields: [medicamentoAId], references: [id])
+  medicamentoB   Medicamento @relation("MedicamentoDestino", fields: [medicamentoBId], references: [id])
+}
+
+model Atendimento {
+  id                String             @id @default(cuid())
+  pacienteId        String
+  usuarioId         String
+  clinicaId         String
+  queixa            String?
+  diagnostico       String?
+  observacoes       String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  clinica           Clinica            @relation(fields: [clinicaId], references: [id])
+  paciente          Paciente           @relation(fields: [pacienteId], references: [id])
+  usuario           Usuario            @relation(fields: [usuarioId], references: [id])
+  cobranças         Cobranca[]
+  prescricoes       Prescricao[]
+  solicitacoesExame SolicitacaoExame[]
+}
+
+model Cobranca {
+  id             String       @id @default(cuid())
+  clinicaId      String
+  atendimentoId  String?
+  descricao      String
+  valor          Float
+  formaPagamento String       @default("DINHEIRO")
+  status         String       @default("PENDENTE")
+  dataPagamento  DateTime?
+  observacoes    String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  clinica        Clinica      @relation(fields: [clinicaId], references: [id])
+  atendimento    Atendimento? @relation(fields: [atendimentoId], references: [id], onDelete: SetNull)
+}
+
+model Prescricao {
+  id            String           @id @default(cuid())
+  atendimentoId String
+  observacoes   String?
+  createdAt     DateTime         @default(now())
+  itens         ItemPrescricao[]
+  atendimento   Atendimento      @relation(fields: [atendimentoId], references: [id])
+}
+
+model ItemPrescricao {
+  id                    String               @id @default(cuid())
+  prescricaoId          String
+  medicamentoId         String
+  medicamentoVarianteId String?
+  dosagem               String?
+  frequencia            String?
+  duracao               String?
+  instrucoes            String?
+  medicamento           Medicamento          @relation(fields: [medicamentoId], references: [id])
+  variante              MedicamentoVariante? @relation(fields: [medicamentoVarianteId], references: [id])
+  prescricao            Prescricao           @relation(fields: [prescricaoId], references: [id])
+}
+
+model Estoque {
+  id            String      @id @default(cuid())
+  clinicaId     String
+  medicamentoId String
+  quantidade    Int         @default(0)
+  minimo        Int         @default(5)
+  updatedAt     DateTime    @updatedAt
+  clinica       Clinica     @relation(fields: [clinicaId], references: [id])
+  medicamento   Medicamento @relation(fields: [medicamentoId], references: [id])
+
+  @@unique([clinicaId, medicamentoId])
+}
+
+model Agendamento {
+  id          String   @id @default(cuid())
+  pacienteId  String
+  usuarioId   String
+  clinicaId   String
+  data        DateTime
+  tipo        String?
+  status      String   @default("AGENDADO")
+  observacoes String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  clinica     Clinica  @relation(fields: [clinicaId], references: [id])
+  paciente    Paciente @relation(fields: [pacienteId], references: [id])
+  usuario     Usuario  @relation(fields: [usuarioId], references: [id])
+}
+
+model SolicitacaoExame {
+  id            String               @id @default(cuid())
+  atendimentoId String
+  clinicaId     String
+  numero        String               @unique
+  status        StatusSolicitacao    @default(SOLICITADO)
+  observacoes   String?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  etapas        EtapaProcessamento[]
+  itens         ItemSolicitacao[]
+  atendimento   Atendimento          @relation(fields: [atendimentoId], references: [id])
+  clinica       Clinica              @relation(fields: [clinicaId], references: [id])
+}
+
+model ItemSolicitacao {
+  id              String            @id @default(cuid())
+  solicitacaoId   String
+  categoriaExame  String
+  nomeExame       String
+  status          StatusSolicitacao @default(SOLICITADO)
+  resultado       String?
+  valorReferencia String?
+  unidade         String?
+  observacao      String?
+  responsavelId   String?
+  dataLiberacao   DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  responsavel     Usuario?          @relation(fields: [responsavelId], references: [id])
+  solicitacao     SolicitacaoExame  @relation(fields: [solicitacaoId], references: [id])
+}
+
+model EtapaProcessamento {
+  id              String           @id @default(cuid())
+  solicitacaoId   String
+  nome            String
+  duracaoSegundos Int
+  iniciadoEm      DateTime?
+  concluidoEm     DateTime?
+  usuarioId       String?
+  observacao      String?
+  createdAt       DateTime         @default(now())
+  solicitacao     SolicitacaoExame @relation(fields: [solicitacaoId], references: [id])
+  usuario         Usuario?         @relation(fields: [usuarioId], references: [id])
+}
+
+model Vacinacao {
+  id             String    @id @default(cuid())
+  pacienteId     String
+  clinicaId      String
+  vacina         String
+  fabricante     String?
+  lote           String?
+  dataAplicacao  DateTime
+  dataVencimento DateTime?
+  usuarioId      String?
+  createdAt      DateTime  @default(now())
+  paciente       Paciente  @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  clinica        Clinica   @relation(fields: [clinicaId], references: [id])
+  usuario        Usuario?  @relation(fields: [usuarioId], references: [id])
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  VETERINARIO
+  RECEPCIONISTA
+  BIOQUIMICO
+}
+
+enum StatusSolicitacao {
+  SOLICITADO
+  AMOSTRA_COLETADA
+  EM_PROCESSAMENTO
+  AGUARDANDO_VALIDACAO
+  LIBERADO
+  ENTREGUE
+}
