@@ -42,9 +42,10 @@ export class AuthController {
   @Post('login')
   async login(
     @Body() body: LoginDto,
+    @Request() req: Req,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { accessToken, refreshToken, usuario } = await this.authService.login(body.email, body.senha);
+    const { accessToken, refreshToken, usuario } = await this.authService.login(body.email, body.senha, req.ip);
     setCookies(res, accessToken, refreshToken);
     return { usuario };
   }
@@ -54,6 +55,7 @@ export class AuthController {
   @Post('registrar')
   async registrar(
     @Body() body: RegistrarDto,
+    @Request() req: Req,
     @Res({ passthrough: true }) res: Response,
   ) {
     const { accessToken, refreshToken, usuario } = await this.authService.registrar({
@@ -64,7 +66,7 @@ export class AuthController {
       adminNome: body.adminNome,
       adminEmail: body.adminEmail,
       adminSenha: body.adminSenha,
-    });
+    }, req.ip);
     setCookies(res, accessToken, refreshToken);
     return { usuario };
   }
@@ -97,10 +99,10 @@ export class AuthController {
   @HttpCode(200)
   @Post('minha-senha')
   trocarSenha(
-    @Request() req: { user: JwtUser },
+    @Request() req: Req & { user: JwtUser },
     @Body() body: TrocarSenhaDto,
   ) {
-    return this.authService.trocarSenha(req.user.id, body.senhaAtual, body.novaSenha);
+    return this.authService.trocarSenha(req.user.id, body.senhaAtual, body.novaSenha, req.ip);
   }
 
   @UseGuards(AuthGuard('jwt'))

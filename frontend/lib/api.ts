@@ -56,12 +56,19 @@ api.interceptors.response.use(
     }
 
     const status = error.response?.status ?? 0;
-    const message =
-      (error.response?.data as any)?.message ||
+    const data = error.response?.data as { message?: unknown; requestId?: string } | undefined;
+    const rawMsg = Array.isArray(data?.message) ? data?.message[0] : data?.message;
+    let message =
+      (rawMsg as string) ||
       (status === 403 ? 'Sem permissão para esta ação.' :
        status === 404 ? 'Registro não encontrado.' :
        status >= 500 ? 'Erro no servidor. Tente novamente.' :
        error.message || 'Erro inesperado.');
+
+    // Em erros de servidor, mostra o código da requisição para suporte/correlação com logs.
+    if (status >= 500 && data?.requestId) {
+      message = `${message} (cód: ${data.requestId.slice(0, 8)})`;
+    }
 
     if (typeof window !== 'undefined') {
       window.dispatchEvent(

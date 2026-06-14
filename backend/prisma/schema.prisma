@@ -57,6 +57,23 @@ model RefreshToken {
   usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 }
 
+model AuditLog {
+  id          String   @id @default(cuid())
+  acao        String
+  usuarioId   String?
+  usuarioEmail String?
+  clinicaId   String?
+  entidade    String?
+  entidadeId  String?
+  ip          String?
+  detalhes    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([clinicaId, createdAt])
+  @@index([usuarioId, createdAt])
+  @@index([acao, createdAt])
+}
+
 model Tutor {
   id        String     @id @default(cuid())
   nome      String

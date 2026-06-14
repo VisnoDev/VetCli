@@ -34,6 +34,7 @@ export class ClinicasController {
   @UseGuards(RolesGuard)
   @Roles(Role.SUPER_ADMIN)
   create(
+    @Request() req: { user: JwtUser },
     @Body()
     body: {
       nome: string;
@@ -43,7 +44,7 @@ export class ClinicasController {
       endereco?: string;
     },
   ) {
-    return this.clinicasService.create(body);
+    return this.clinicasService.create(body, req.user);
   }
 
   @Patch(':id')

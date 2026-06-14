@@ -8,10 +8,14 @@ import { Role } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { JwtUser } from '../auth/jwt-user';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditService, AuditAction } from '../audit/audit.service';
 
 @Injectable()
 export class UsuariosService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private audit: AuditService,
+  ) {}
 
   async findByEmail(email: string) {
     return this.prisma.usuario.findUnique({
@@ -69,7 +73,7 @@ export class UsuariosService {
     if (exists) throw new BadRequestException('Este e-mail já está cadastrado');
 
     const senha = await bcrypt.hash(data.senha, 10);
-    return this.prisma.usuario.create({
+    const criado = await this.prisma.usuario.create({
       data: {
         nome: data.nome.trim(),
         email: data.email.toLowerCase().trim(),
@@ -79,6 +83,18 @@ export class UsuariosService {
       },
       select: { id: true, nome: true, email: true, role: true, ativo: true },
     });
+
+    this.audit.registrar({
+      acao: AuditAction.USUARIO_CRIADO,
+      usuarioId: actor.id,
+      usuarioEmail: actor.email,
+      clinicaId,
+      entidade: 'Usuario',
+      entidadeId: criado.id,
+      detalhes: { email: criado.email, role: criado.role },
+    });
+
+    return criado;
   }
 
   async update(
@@ -104,7 +120,7 @@ export class UsuariosService {
       throw new ForbiddenException('Sem permissão');
     }
 
-    return this.prisma.usuario.update({
+    const atualizado = await this.prisma.usuario.update({
       where: { id },
       data: {
         ...(data.nome !== undefined ? { nome: data.nome.trim() } : {}),
@@ -113,6 +129,22 @@ export class UsuariosService {
       },
       select: { id: true, nome: true, email: true, role: true, ativo: true },
     });
+
+    this.audit.registrar({
+      acao: AuditAction.USUARIO_ATUALIZADO,
+      usuarioId: actor.id,
+      usuarioEmail: actor.email,
+      clinicaId: user.clinicaId,
+      entidade: 'Usuario',
+      entidadeId: id,
+      detalhes: {
+        alvo: user.email,
+        ...(data.role !== undefined ? { role: data.role } : {}),
+        ...(data.ativo !== undefined ? { ativo: data.ativo } : {}),
+      },
+    });
+
+    return atualizado;
   }
 
   async updateSenha(actor: JwtUser, id: string, novaSenha: string) {
@@ -131,6 +163,17 @@ export class UsuariosService {
       where: { id },
       data: { senha },
     });
+
+    this.audit.registrar({
+      acao: AuditAction.SENHA_REDEFINIDA,
+      usuarioId: actor.id,
+      usuarioEmail: actor.email,
+      clinicaId: user.clinicaId,
+      entidade: 'Usuario',
+      entidadeId: id,
+      detalhes: { alvo: user.email },
+    });
+
     return { ok: true };
   }
 }

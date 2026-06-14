@@ -6,10 +6,14 @@ import {
 import { Role } from '@prisma/client';
 import { JwtUser } from '../auth/jwt-user';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditService, AuditAction } from '../audit/audit.service';
 
 @Injectable()
 export class ClinicasService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private audit: AuditService,
+  ) {}
 
   async findAllForUser(user: JwtUser) {
     if (user.role === Role.SUPER_ADMIN) {
@@ -32,14 +36,17 @@ export class ClinicasService {
     return c;
   }
 
-  async create(data: {
-    nome: string;
-    cnpj?: string;
-    telefone?: string;
-    email?: string;
-    endereco?: string;
-  }) {
-    return this.prisma.clinica.create({
+  async create(
+    data: {
+      nome: string;
+      cnpj?: string;
+      telefone?: string;
+      email?: string;
+      endereco?: string;
+    },
+    actor?: JwtUser,
+  ) {
+    const clinica = await this.prisma.clinica.create({
       data: {
         nome: data.nome,
         cnpj: data.cnpj || null,
@@ -48,6 +55,18 @@ export class ClinicasService {
         endereco: data.endereco || null,
       },
     });
+
+    this.audit.registrar({
+      acao: AuditAction.CLINICA_CRIADA,
+      usuarioId: actor?.id,
+      usuarioEmail: actor?.email,
+      clinicaId: clinica.id,
+      entidade: 'Clinica',
+      entidadeId: clinica.id,
+      detalhes: { nome: clinica.nome },
+    });
+
+    return clinica;
   }
 
   async update(
@@ -70,9 +89,21 @@ export class ClinicasService {
     const existe = await this.prisma.clinica.findUnique({ where: { id } });
     if (!existe) throw new NotFoundException('Clínica não encontrada');
 
-    return this.prisma.clinica.update({
+    const atualizada = await this.prisma.clinica.update({
       where: { id },
       data,
     });
+
+    this.audit.registrar({
+      acao: AuditAction.CLINICA_ATUALIZADA,
+      usuarioId: user.id,
+      usuarioEmail: user.email,
+      clinicaId: id,
+      entidade: 'Clinica',
+      entidadeId: id,
+      detalhes: { campos: Object.keys(data) },
+    });
+
+    return atualizada;
   }
 }

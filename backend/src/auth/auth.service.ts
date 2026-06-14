@@ -8,6 +8,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { UsuariosService } from '../usuarios/usuarios.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditService, AuditAction } from '../audit/audit.service';
 import * as bcrypt from 'bcryptjs';
 import { randomBytes, createHash } from 'crypto';
 
@@ -17,6 +18,7 @@ export class AuthService {
     private usuariosService: UsuariosService,
     private jwtService: JwtService,
     private prisma: PrismaService,
+    private audit: AuditService,
   ) {}
 
   private hashToken(token: string): string {
@@ -40,14 +42,26 @@ export class AuthService {
     return raw;
   }
 
-  async login(email: string, senha: string) {
-    const usuario = await this.usuariosService.findByEmail(email.trim().toLowerCase());
-    if (!usuario) throw new UnauthorizedException('Credenciais inválidas');
+  async login(email: string, senha: string, ip?: string) {
+    const emailNorm = email.trim().toLowerCase();
+    const usuario = await this.usuariosService.findByEmail(emailNorm);
+
+    const falha = () => {
+      this.audit.registrar({
+        acao: AuditAction.LOGIN_FALHA,
+        usuarioId: usuario?.id,
+        usuarioEmail: emailNorm,
+        clinicaId: usuario?.clinicaId,
+        ip,
+      });
+    };
+
+    if (!usuario) { falha(); throw new UnauthorizedException('Credenciais inválidas'); }
 
     const senhaValida = await bcrypt.compare(senha, usuario.senha);
-    if (!senhaValida) throw new UnauthorizedException('Credenciais inválidas');
+    if (!senhaValida) { falha(); throw new UnauthorizedException('Credenciais inválidas'); }
 
-    if (!usuario.ativo) throw new UnauthorizedException('Usuário inativo');
+    if (!usuario.ativo) { falha(); throw new UnauthorizedException('Usuário inativo'); }
 
     const payload = {
       sub: usuario.id,
@@ -58,6 +72,14 @@ export class AuthService {
 
     const accessToken = this.buildAccessToken(payload);
     const refreshToken = await this.createRefreshToken(usuario.id);
+
+    this.audit.registrar({
+      acao: AuditAction.LOGIN_SUCESSO,
+      usuarioId: usuario.id,
+      usuarioEmail: usuario.email,
+      clinicaId: usuario.clinicaId,
+      ip,
+    });
 
     return {
       accessToken,
@@ -80,7 +102,7 @@ export class AuthService {
     adminNome: string;
     adminEmail: string;
     adminSenha: string;
-  }) {
+  }, ip?: string) {
     const emailNormalizado = data.adminEmail.trim().toLowerCase();
 
     const emailExistente = await this.usuariosService.findByEmail(emailNormalizado);
@@ -128,6 +150,17 @@ export class AuthService {
     const accessToken = this.buildAccessToken(payload);
     const refreshToken = await this.createRefreshToken(usuario.id);
 
+    this.audit.registrar({
+      acao: AuditAction.CLINICA_REGISTRADA,
+      usuarioId: usuario.id,
+      usuarioEmail: usuario.email,
+      clinicaId: clinica.id,
+      entidade: 'Clinica',
+      entidadeId: clinica.id,
+      ip,
+      detalhes: { clinicaNome: clinica.nome },
+    });
+
     return {
       accessToken,
       refreshToken,
@@ -141,7 +174,7 @@ export class AuthService {
     };
   }
 
-  async trocarSenha(usuarioId: string, senhaAtual: string, novaSenha: string) {
+  async trocarSenha(usuarioId: string, senhaAtual: string, novaSenha: string, ip?: string) {
     const usuario = await this.usuariosService.findById(usuarioId);
     if (!usuario) throw new NotFoundException('Usuário não encontrado');
 
@@ -156,6 +189,14 @@ export class AuthService {
     await this.prisma.usuario.update({
       where: { id: usuarioId },
       data: { senha: senhaHash },
+    });
+
+    this.audit.registrar({
+      acao: AuditAction.SENHA_ALTERADA,
+      usuarioId: usuario.id,
+      usuarioEmail: usuario.email,
+      clinicaId: usuario.clinicaId,
+      ip,
     });
 
     return { ok: true };
