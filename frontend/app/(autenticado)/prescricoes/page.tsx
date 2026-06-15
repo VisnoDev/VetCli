@@ -130,13 +130,13 @@ export default function PrescricoesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">💊 Prescrições</h1>
+        <h1 className="page-title">💊 Prescrições</h1>
         <button type="button" onClick={() => setModalAberto(true)} className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
           + Nova Prescrição
         </button>
       </div>
 
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-x-auto">
+      <div className="card overflow-x-auto">
         {loading ? (
           <div className="p-8 text-center text-gray-400">Carregando...</div>
         ) : atendimentos.length === 0 ? (
@@ -170,11 +170,11 @@ export default function PrescricoesPage() {
 
       {modalAberto && (
         <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-2xl p-6 my-8">
+          <div className="card w-full max-w-2xl p-6 my-8">
             <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">Nova Prescrição</h2>
             <div className="space-y-3 mb-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Paciente *</label>
+                <label className="label">Paciente *</label>
                 <BuscaSelect
                   placeholder="Digite o nome do paciente..."
                   value={selectedPaciente}
@@ -191,19 +191,19 @@ export default function PrescricoesPage() {
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Queixa Principal</label>
-                <input type="text" value={form.queixa} onChange={(e) => setForm({ ...form, queixa: e.target.value })} placeholder="Ex: Dor abdominal, vômito..." className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                <label className="label">Queixa Principal</label>
+                <input type="text" value={form.queixa} onChange={(e) => setForm({ ...form, queixa: e.target.value })} placeholder="Ex: Dor abdominal, vômito..." className="w-full input" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Diagnóstico</label>
-                <input type="text" value={form.diagnostico} onChange={(e) => setForm({ ...form, diagnostico: e.target.value })} placeholder="Ex: Gastroenterite aguda..." className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                <label className="label">Diagnóstico</label>
+                <input type="text" value={form.diagnostico} onChange={(e) => setForm({ ...form, diagnostico: e.target.value })} placeholder="Ex: Gastroenterite aguda..." className="w-full input" />
               </div>
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Buscar medicamento</label>
+              <label className="label">Buscar medicamento</label>
               <div className="relative">
-                <input type="text" value={searchMed} onChange={(e) => void buscarMedicamentos(e.target.value)} placeholder="Ex: tramadol, amoxicilina..." className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                <input type="text" value={searchMed} onChange={(e) => void buscarMedicamentos(e.target.value)} placeholder="Ex: tramadol, amoxicilina..." className="w-full input" />
                 {medicamentos.length > 0 && (
                   <div className="absolute top-full left-0 right-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10 max-h-48 overflow-y-auto">
                     {medicamentos.map((med) => (
@@ -274,8 +274,8 @@ export default function PrescricoesPage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Observações</label>
-              <textarea value={form.observacoes} onChange={(e) => setForm({ ...form, observacoes: e.target.value })} placeholder="Observações gerais..." rows={2} className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+              <label className="label">Observações</label>
+              <textarea value={form.observacoes} onChange={(e) => setForm({ ...form, observacoes: e.target.value })} placeholder="Observações gerais..." rows={2} className="w-full input" />
             </div>
 
             <div className="flex gap-2 mt-5">

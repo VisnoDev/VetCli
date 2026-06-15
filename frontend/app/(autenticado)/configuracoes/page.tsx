@@ -146,20 +146,20 @@ export default function ConfiguracoesPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">⚙️ Configurações</h1>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">Dados da clínica e usuários. Alterações sensíveis exigem perfil de administrador.</p>
+      <h1 className="page-title mb-1">⚙️ Configurações</h1>
+      <p className="page-subtitle mb-6">Dados da clínica e usuários. Alterações sensíveis exigem perfil de administrador.</p>
 
-<div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-gray-800 pb-1">
+      <div className="inline-flex gap-1 mb-6 p-1 rounded-xl surface">
         {(['clinica', 'usuarios', 'conta'] as const).map((a) => (
           (a === 'usuarios' && !podeAdmin) ? null :
-          <button key={a} type="button" onClick={() => setAba(a)} className={`px-4 py-2 text-sm font-medium rounded-t-lg ${aba === a ? 'bg-white dark:bg-gray-900 text-brand-600 border border-b-0 border-gray-200 dark:border-gray-800' : 'text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'}`}>
+          <button key={a} type="button" onClick={() => setAba(a)} className={`px-4 py-1.5 text-sm font-semibold rounded-lg transition ${aba === a ? 'bg-brand-600 text-white shadow-sm shadow-brand-600/30' : 'text-ink-soft hover:text-ink'}`}>
             {a === 'clinica' ? 'Clínica' : a === 'usuarios' ? 'Usuários' : 'Minha conta'}
           </button>
         ))}
       </div>
 
       {aba === 'clinica' && (
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 space-y-4">
+        <div className="card p-6 space-y-4">
           {me.role === 'SUPER_ADMIN' && clinicas.length > 0 && (
             <div className="flex flex-wrap items-end gap-3">
               <div className="flex-1 min-w-[200px]">
@@ -206,7 +206,7 @@ export default function ConfiguracoesPage() {
 
       {aba === 'usuarios' && podeAdmin && (
         <div className="space-y-6">
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
+          <div className="card p-6">
             <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-4">Novo usuário</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <input placeholder="Nome completo" value={novo.nome} onChange={(e) => setNovo({ ...novo, nome: e.target.value })} className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" />
@@ -219,7 +219,7 @@ export default function ConfiguracoesPage() {
             <button type="button" onClick={() => void criarUsuario()} disabled={!novo.nome || !novo.email || novo.senha.length < 6} className="mt-4 px-4 py-2 rounded-lg bg-brand-600 text-white text-sm disabled:opacity-50">Criar usuário</button>
           </div>
 
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+          <div className="card overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>{['Nome', 'E-mail', 'Papel', 'Status', 'Ações'].map((h) => <th key={h} className="text-left px-4 py-2 text-gray-600 dark:text-gray-400">{h}</th>)}</tr>
@@ -258,7 +258,7 @@ export default function ConfiguracoesPage() {
       )}
 
       {aba === 'conta' && me && (
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 max-w-md space-y-6">
+        <div className="card p-6 max-w-md space-y-6">
           <div>
             <p className="text-xs font-medium text-gray-500 mb-1">Nome</p>
             <p className="text-sm text-gray-900 dark:text-gray-100">{me.nome}</p>

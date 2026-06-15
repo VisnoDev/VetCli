@@ -210,7 +210,7 @@ export default function LaboratorioDetalhePage() {
       </div>
 
       {/* Info da solicitação */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 mb-4">
+      <div className="card p-5 mb-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 mb-2">
@@ -235,7 +235,7 @@ export default function LaboratorioDetalhePage() {
 
           {/* Progresso */}
           <div className="text-right">
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{examesConcluidos}/{totalExames}</p>
+            <p className="page-title">{examesConcluidos}/{totalExames}</p>
             <p className="text-xs text-gray-500">exames concluídos</p>
             <div className="w-32 h-2 bg-gray-200 dark:bg-gray-700 rounded-full mt-2">
               <div className="h-2 bg-brand-600 rounded-full transition-all" style={{ width: `${totalExames > 0 ? (examesConcluidos / totalExames) * 100 : 0}%` }} />
@@ -268,7 +268,7 @@ export default function LaboratorioDetalhePage() {
       </div>
 
       {/* Timers */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 mb-4">
+      <div className="card p-5 mb-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100">⏱️ Timers de Processo</h2>
           <button onClick={() => setModalTimer(true)} className="text-sm px-3 py-1.5 rounded-lg bg-brand-600 text-white hover:bg-brand-700">+ Timer</button>
@@ -310,7 +310,7 @@ export default function LaboratorioDetalhePage() {
       {/* Exames por categoria */}
       <div className="space-y-3">
         {Object.entries(itensPorCategoria).map(([categoria, itens]: [string, any]) => (
-          <div key={categoria} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+          <div key={categoria} className="card overflow-hidden">
             <div className="px-5 py-3 bg-gray-50 dark:bg-gray-800 flex items-center justify-between">
               <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">{categoria}</h3>
               <span className="text-xs text-gray-500">{itens.filter((i: any) => i.resultado).length}/{itens.length}</span>
@@ -346,7 +346,7 @@ export default function LaboratorioDetalhePage() {
 
       {/* Histórico de etapas */}
       {solicitacao.etapas.length > 0 && (
-        <div className="mt-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5">
+        <div className="mt-4 card p-5">
           <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">📋 Histórico de Etapas</h3>
           <div className="space-y-2">
             {solicitacao.etapas.map((etapa: any) => (
@@ -373,7 +373,7 @@ export default function LaboratorioDetalhePage() {
       {/* Modal lançar resultado */}
       {modalResultado && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-md p-6">
+          <div className="card w-full max-w-md p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">Lançar Resultado</h2>
               <button onClick={() => setModalResultado(null)} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
@@ -381,22 +381,22 @@ export default function LaboratorioDetalhePage() {
             <p className="text-sm font-medium text-brand-600 dark:text-brand-400 mb-4">💊 {modalResultado.nomeExame}</p>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Resultado *</label>
-                <input type="text" value={formResultado.resultado} onChange={(e) => setFormResultado({ ...formResultado, resultado: e.target.value })} placeholder="Ex: 5.2, Positivo, Negativo..." className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                <label className="label">Resultado *</label>
+                <input type="text" value={formResultado.resultado} onChange={(e) => setFormResultado({ ...formResultado, resultado: e.target.value })} placeholder="Ex: 5.2, Positivo, Negativo..." className="w-full input" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unidade</label>
-                  <input type="text" value={formResultado.unidade} onChange={(e) => setFormResultado({ ...formResultado, unidade: e.target.value })} placeholder="Ex: mg/dL, U/L..." className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                  <label className="label">Unidade</label>
+                  <input type="text" value={formResultado.unidade} onChange={(e) => setFormResultado({ ...formResultado, unidade: e.target.value })} placeholder="Ex: mg/dL, U/L..." className="w-full input" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Valor de referência</label>
-                  <input type="text" value={formResultado.valorReferencia} onChange={(e) => setFormResultado({ ...formResultado, valorReferencia: e.target.value })} placeholder="Ex: 3.5 - 5.5" className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                  <label className="label">Valor de referência</label>
+                  <input type="text" value={formResultado.valorReferencia} onChange={(e) => setFormResultado({ ...formResultado, valorReferencia: e.target.value })} placeholder="Ex: 3.5 - 5.5" className="w-full input" />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Observação</label>
-                <textarea value={formResultado.observacao} onChange={(e) => setFormResultado({ ...formResultado, observacao: e.target.value })} rows={2} placeholder="Observações do laboratório..." className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                <label className="label">Observação</label>
+                <textarea value={formResultado.observacao} onChange={(e) => setFormResultado({ ...formResultado, observacao: e.target.value })} rows={2} placeholder="Observações do laboratório..." className="w-full input" />
               </div>
             </div>
             <div className="flex gap-2 mt-5">
@@ -410,7 +410,7 @@ export default function LaboratorioDetalhePage() {
       {/* Modal novo timer */}
       {modalTimer && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-md p-6">
+          <div className="card w-full max-w-md p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">⏱️ Novo Timer</h2>
               <button onClick={() => setModalTimer(false)} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
@@ -429,9 +429,9 @@ export default function LaboratorioDetalhePage() {
             <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Timer personalizado:</p>
               <div className="space-y-3">
-                <input type="text" value={timerCustom.nome} onChange={(e) => setTimerCustom({ ...timerCustom, nome: e.target.value })} placeholder="Nome do processo..." className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                <input type="text" value={timerCustom.nome} onChange={(e) => setTimerCustom({ ...timerCustom, nome: e.target.value })} placeholder="Nome do processo..." className="w-full input" />
                 <div className="flex gap-2 items-center">
-                  <input type="number" value={timerCustom.duracaoSegundos} onChange={(e) => setTimerCustom({ ...timerCustom, duracaoSegundos: Number(e.target.value) })} className="flex-1 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                  <input type="number" value={timerCustom.duracaoSegundos} onChange={(e) => setTimerCustom({ ...timerCustom, duracaoSegundos: Number(e.target.value) })} className="flex-1 input" />
                   <span className="text-sm text-gray-500">segundos</span>
                 </div>
                 <button onClick={() => iniciarTimer(timerCustom.nome, timerCustom.duracaoSegundos)} disabled={!timerCustom.nome || timerCustom.duracaoSegundos <= 0} className="w-full bg-brand-600 text-white py-2 rounded-lg text-sm disabled:opacity-50 hover:bg-brand-700">

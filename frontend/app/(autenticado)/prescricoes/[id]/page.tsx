@@ -112,7 +112,7 @@ export default function PrescricaoDetalhePage() {
     <div>
       {/* Botões de ação */}
       <div className="flex flex-wrap items-center justify-between gap-2 mb-6 no-print">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">💊 Prescrição</h1>
+        <h1 className="page-title">💊 Prescrição</h1>
         <div className="flex flex-wrap gap-2">
           <button type="button" onClick={() => void copiar()} className="text-sm px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
             {copiado ? '✅ Copiado!' : 'Copiar prescrição'}
@@ -129,7 +129,7 @@ export default function PrescricaoDetalhePage() {
       <p className="no-print text-xs text-gray-500 mb-4">PDF: use o botão acima e, na impressão, selecione "Salvar como PDF" (ou Microsoft Print to PDF).</p>
 
       {/* Conteúdo da receita */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-8 print:shadow-none print:border-none">
+      <div className="card p-8 print:shadow-none print:border-none">
         <div className="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">🐾 {data.clinica.nome}</h2>
           <p className="text-sm text-gray-500 dark:text-gray-400">Receituário veterinário</p>

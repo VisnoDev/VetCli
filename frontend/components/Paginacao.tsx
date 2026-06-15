@@ -13,15 +13,15 @@ export default function Paginacao({ page, totalPages, total, limit, onChange }: 
   const to = Math.min(page * limit, total);
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 dark:border-gray-800">
-      <span className="text-sm text-gray-500 dark:text-gray-400">
+    <div className="flex items-center justify-between px-4 py-3" style={{ borderTop: '1px solid var(--hairline)' }}>
+      <span className="text-sm text-ink-soft">
         {from}–{to} de {total}
       </span>
       <div className="flex items-center gap-1">
         <button
           onClick={() => onChange(page - 1)}
           disabled={page <= 1}
-          className="px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition"
+          className="px-3 py-1.5 rounded-lg text-sm font-medium text-ink-soft hover:bg-black/5 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition"
         >
           ← Anterior
         </button>
@@ -40,10 +40,10 @@ export default function Paginacao({ page, totalPages, total, limit, onChange }: 
             <button
               key={p}
               onClick={() => onChange(p)}
-              className={`w-8 h-8 rounded-lg text-sm font-medium transition ${
+              className={`w-8 h-8 rounded-lg text-sm font-semibold transition ${
                 p === page
-                  ? 'bg-brand-600 text-white'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                  ? 'bg-brand-600 text-white shadow-sm shadow-brand-600/30'
+                  : 'text-ink-soft hover:bg-black/5 dark:hover:bg-white/5'
               }`}
             >
               {p}
@@ -53,7 +53,7 @@ export default function Paginacao({ page, totalPages, total, limit, onChange }: 
         <button
           onClick={() => onChange(page + 1)}
           disabled={page >= totalPages}
-          className="px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition"
+          className="px-3 py-1.5 rounded-lg text-sm font-medium text-ink-soft hover:bg-black/5 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition"
         >
           Próxima →
         </button>

@@ -34,27 +34,37 @@
   --color-accent-950: #431409;
 
   /* Sombras com tinta quente em vez de preto puro */
-  --shadow-soft: 0 1px 2px rgba(40, 33, 22, 0.04), 0 4px 16px rgba(40, 33, 22, 0.05);
-  --shadow-lift: 0 4px 12px rgba(40, 33, 22, 0.06), 0 16px 40px rgba(40, 33, 22, 0.08);
+  --shadow-soft: 0 1px 2px rgba(40, 33, 22, 0.04), 0 6px 20px rgba(40, 33, 22, 0.05);
+  --shadow-lift: 0 4px 14px rgba(40, 33, 22, 0.07), 0 20px 48px rgba(40, 33, 22, 0.10);
+  --shadow-glow: 0 8px 24px rgba(13, 148, 136, 0.18);
 
   --animate-fade-up: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-fade-in: fade-in 0.4s ease both;
+  --animate-scale-in: scale-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 :root {
   --canvas: #faf7f2;
   --canvas-elevated: #ffffff;
+  --canvas-sunken: #f4efe7;
   --ink: #1c1917;
-  --ink-soft: #57534e;
+  --ink-soft: #6b6258;
+  --ink-faint: #9a9087;
   --hairline: #ece6dc;
+  --hairline-strong: #ddd5c7;
+  --ring: rgba(13, 148, 136, 0.45);
 }
 
 .dark {
   --canvas: #0a0b0d;
   --canvas-elevated: #15171b;
-  --ink: #e7e5e4;
-  --ink-soft: #a8a29e;
-  --hairline: #26282e;
+  --canvas-sunken: #101216;
+  --ink: #ececec;
+  --ink-soft: #9ca0a8;
+  --ink-faint: #6b6f78;
+  --hairline: #24272e;
+  --hairline-strong: #31353e;
+  --ring: rgba(45, 212, 191, 0.5);
 }
 
 @keyframes fade-up {
@@ -65,13 +75,20 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96) translateY(6px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes shimmer {
+  from { background-position: -800px 0; }
+  to { background-position: 800px 0; }
+}
 
 body {
   background-color: var(--canvas);
-  /* Brilho quente sutil no canto superior — dá vida ao canvas */
   background-image:
-    radial-gradient(1100px 520px at 12% -8%, rgba(13, 148, 136, 0.06), transparent 60%),
-    radial-gradient(900px 480px at 100% 0%, rgba(249, 111, 28, 0.05), transparent 55%);
+    radial-gradient(1100px 520px at 8% -10%, rgba(13, 148, 136, 0.07), transparent 60%),
+    radial-gradient(900px 480px at 100% 0%, rgba(249, 111, 28, 0.055), transparent 55%);
   background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-sans);
@@ -93,28 +110,192 @@ h1, h2, h3 {
 /* Scrollbar refinada */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(120, 113, 108, 0.35) transparent;
+  scrollbar-color: rgba(120, 113, 108, 0.32) transparent;
 }
 *::-webkit-scrollbar { width: 10px; height: 10px; }
 *::-webkit-scrollbar-track { background: transparent; }
 *::-webkit-scrollbar-thumb {
-  background: rgba(120, 113, 108, 0.3);
+  background: rgba(120, 113, 108, 0.28);
   border-radius: 9999px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 *::-webkit-scrollbar-thumb:hover {
-  background: rgba(120, 113, 108, 0.5);
+  background: rgba(120, 113, 108, 0.48);
   background-clip: padding-box;
 }
 
-/* Helpers reutilizáveis */
-.surface {
-  background: var(--canvas-elevated);
-  border: 1px solid var(--hairline);
+@layer components {
+  /* ---------- Superfícies ---------- */
+  .surface {
+    background: var(--canvas-elevated);
+    border: 1px solid var(--hairline);
+  }
+  .card {
+    @apply rounded-2xl;
+    background: var(--canvas-elevated);
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-soft);
+  }
+  .card-interactive {
+    @apply rounded-2xl transition-all duration-200;
+    background: var(--canvas-elevated);
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-soft);
+  }
+  .card-interactive:hover {
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-2px);
+    border-color: var(--hairline-strong);
+  }
+
+  /* ---------- Texto ---------- */
+  .text-ink { color: var(--ink); }
+  .text-ink-soft { color: var(--ink-soft); }
+  .text-ink-faint { color: var(--ink-faint); }
+
+  /* ---------- Cabeçalho de página ---------- */
+  .page-title {
+    @apply font-display text-2xl font-extrabold;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .page-subtitle {
+    @apply text-sm mt-1;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- Botões ---------- */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 font-semibold rounded-xl text-sm px-4 py-2.5 transition-all duration-150 cursor-pointer select-none;
+    white-space: nowrap;
+  }
+  .btn:disabled { @apply opacity-50 cursor-not-allowed; }
+  .btn-sm { @apply px-3 py-1.5 text-xs gap-1.5 rounded-lg; }
+
+  .btn-primary {
+    @apply text-white;
+    background-image: linear-gradient(to right, var(--color-brand-600), var(--color-brand-500));
+    box-shadow: 0 4px 14px rgba(13, 148, 136, 0.22);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background-image: linear-gradient(to right, var(--color-brand-700), var(--color-brand-600));
+    box-shadow: 0 6px 18px rgba(13, 148, 136, 0.30);
+  }
+
+  .btn-ghost {
+    background: var(--canvas-elevated);
+    border: 1px solid var(--hairline);
+    color: var(--ink-soft);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    color: var(--ink);
+    border-color: var(--hairline-strong);
+    background: var(--canvas-sunken);
+  }
+
+  .btn-danger {
+    @apply text-white;
+    background-color: #e11d48;
+  }
+  .btn-danger:hover:not(:disabled) { background-color: #be123c; }
+
+  /* Link de ação em tabelas */
+  .action-link {
+    @apply text-xs font-semibold transition-colors;
+    color: var(--color-brand-600);
+  }
+  .action-link:hover { color: var(--color-brand-700); }
+  .action-link-danger {
+    @apply text-xs font-semibold transition-colors;
+    color: #e11d48;
+  }
+  .action-link-danger:hover { color: #be123c; }
+
+  /* ---------- Formulários ---------- */
+  .label {
+    @apply block text-sm font-medium mb-1.5;
+    color: var(--ink);
+  }
+  .input {
+    @apply w-full rounded-xl px-3.5 py-2.5 text-sm transition outline-none;
+    background: var(--canvas-elevated);
+    border: 1px solid var(--hairline-strong);
+    color: var(--ink);
+  }
+  .input::placeholder { color: var(--ink-faint); }
+  .input:focus {
+    border-color: var(--color-brand-400);
+    box-shadow: 0 0 0 3px var(--ring);
+  }
+  .input:disabled {
+    opacity: 0.65;
+    cursor: default;
+    background: var(--canvas-sunken);
+  }
+
+  /* ---------- Badges ---------- */
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full text-xs font-semibold px-2.5 py-0.5;
+  }
+  .badge-brand { @apply text-brand-700 dark:text-brand-300; background: var(--color-brand-50); }
+  .dark .badge-brand { background: color-mix(in srgb, var(--color-brand-950) 60%, transparent); }
+  .badge-green { @apply bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300; }
+  .badge-amber { @apply bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300; }
+  .badge-red { @apply bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300; }
+  .badge-sky { @apply bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300; }
+  .badge-gray {
+    color: var(--ink-soft);
+    background: var(--canvas-sunken);
+  }
+
+  /* ---------- Tabela ---------- */
+  .data-table { @apply w-full text-sm; }
+  .data-table thead th {
+    @apply text-left px-4 py-3 text-[11px] font-bold uppercase tracking-wider;
+    color: var(--ink-faint);
+    background: var(--canvas-sunken);
+  }
+  .data-table tbody tr {
+    border-top: 1px solid var(--hairline);
+    transition: background 0.12s;
+  }
+  .data-table tbody tr:hover { background: color-mix(in srgb, var(--color-brand-500) 5%, transparent); }
+  .data-table tbody td {
+    @apply px-4 py-3.5;
+    color: var(--ink-soft);
+  }
+  .data-table tbody td.cell-strong {
+    @apply font-semibold;
+    color: var(--ink);
+  }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+    background: rgba(20, 16, 10, 0.45);
+    backdrop-filter: blur(4px);
+  }
+  .modal-card {
+    @apply w-full rounded-2xl p-6 animate-scale-in;
+    background: var(--canvas-elevated);
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-lift);
+  }
+
+  /* ---------- Estados ---------- */
+  .skeleton {
+    border-radius: 0.5rem;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--ink) 6%, transparent) 25%,
+      color-mix(in srgb, var(--ink) 11%, transparent) 37%,
+      color-mix(in srgb, var(--ink) 6%, transparent) 63%
+    );
+    background-size: 800px 100%;
+    animation: shimmer 1.4s infinite linear;
+  }
 }
-.text-ink { color: var(--ink); }
-.text-ink-soft { color: var(--ink-soft); }
 
 @media print {
   .no-print { display: none !important; }

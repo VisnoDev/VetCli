@@ -110,30 +110,34 @@ export default function LaboratorioPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">🔬 Laboratório</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center w-11 h-11 rounded-2xl bg-gradient-to-br from-brand-100 to-brand-50 dark:from-brand-950 dark:to-brand-900/40 text-brand-600 dark:text-brand-300 shadow-sm">🔬</div>
+          <div>
+            <h1 className="page-title">Laboratório</h1>
+            <p className="page-subtitle">Solicitações e resultados de exames</p>
+          </div>
+        </div>
         {podeCriarSolicitacao && (
-          <button onClick={() => setModalNovo(true)} className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
-            + Nova Solicitação
-          </button>
+          <button onClick={() => setModalNovo(true)} className="btn btn-primary">+ Nova solicitação</button>
         )}
       </div>
 
       {/* Busca */}
-      <div className="mb-4">
+      <div className="relative mb-4 max-w-md">
         <input
           type="text"
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
           placeholder="🔍 Buscar por paciente, tutor ou nº da solicitação..."
-          className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+          className="input"
         />
       </div>
 
       {/* Filtros de status */}
       <div className="flex flex-wrap gap-2 mb-6">
         {[{ value: '', label: 'Todos' }, ...Object.entries(STATUS_LABELS).map(([v, s]) => ({ value: v, label: s.label }))].map((f) => (
-          <button key={f.value} onClick={() => setFiltroStatus(f.value)} className={`text-xs px-3 py-1.5 rounded-full font-medium transition ${filtroStatus === f.value ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
+          <button key={f.value} onClick={() => setFiltroStatus(f.value)} className={`text-xs px-3.5 py-1.5 rounded-full font-semibold transition ${filtroStatus === f.value ? 'bg-brand-600 text-white shadow-sm shadow-brand-600/30' : 'btn-ghost'}`}>
             {f.label}
           </button>
         ))}
@@ -143,7 +147,7 @@ export default function LaboratorioPage() {
       {loading ? (
         <p className="text-gray-400">Carregando...</p>
       ) : solicitacoesFiltradas.length === 0 ? (
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-8 text-center text-gray-500">
+        <div className="card p-8 text-center text-gray-500">
           {busca ? `Nenhuma solicitação encontrada para "${busca}"` : 'Nenhuma solicitação encontrada'}
         </div>
       ) : (
@@ -151,7 +155,7 @@ export default function LaboratorioPage() {
           {solicitacoesFiltradas.map((s) => {
             const status = STATUS_LABELS[s.status] ?? STATUS_LABELS.SOLICITADO;
             return (
-              <div key={s.id} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
+              <div key={s.id} className="card p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
@@ -193,7 +197,7 @@ export default function LaboratorioPage() {
       {/* Modal nova solicitação */}
       {modalNovo && (
         <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-2xl p-6 my-8">
+          <div className="card w-full max-w-2xl p-6 my-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">Nova Solicitação de Exames</h2>
               <button onClick={() => { setModalNovo(false); setBuscaAtendimento(''); setDropdownAberto(false); }} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
@@ -201,7 +205,7 @@ export default function LaboratorioPage() {
 
             <div className="space-y-3 mb-4">
               <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Atendimento *</label>
+                <label className="label">Atendimento *</label>
 
                 {/* Campo de busca */}
                 <input
@@ -214,7 +218,7 @@ export default function LaboratorioPage() {
                   }}
                   onFocus={() => setDropdownAberto(true)}
                   placeholder="Buscar por paciente, tutor ou diagnóstico..."
-                  className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full input"
                 />
 
                 {/* Dropdown de resultados */}
@@ -249,8 +253,8 @@ export default function LaboratorioPage() {
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Observações</label>
-                <textarea value={form.observacoes} onChange={(e) => setForm({ ...form, observacoes: e.target.value })} rows={2} placeholder="Informações relevantes para o laboratório..." className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                <label className="label">Observações</label>
+                <textarea value={form.observacoes} onChange={(e) => setForm({ ...form, observacoes: e.target.value })} rows={2} placeholder="Informações relevantes para o laboratório..." className="w-full input" />
               </div>
             </div>
 

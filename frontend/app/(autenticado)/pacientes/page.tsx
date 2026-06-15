@@ -2,9 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Heart, Plus, Search, Eye, Pencil, Trash2, TriangleAlert } from 'lucide-react';
 import api from '../../../lib/api';
 import { toast } from '../../../components/Toast';
 import Paginacao from '../../../components/Paginacao';
+import PageHeader from '../../../components/ui/PageHeader';
+import Modal from '../../../components/ui/Modal';
+import EmptyState from '../../../components/ui/EmptyState';
 import { can, getStoredRole } from '../../../lib/permissions';
 
 interface Tutor {
@@ -23,6 +27,10 @@ interface Paciente {
   alergias?: string;
   tutor: Tutor;
 }
+
+const especieEmoji: Record<string, string> = {
+  Cão: '🐶', Gato: '🐱', Ave: '🐦', Coelho: '🐰', Hamster: '🐹', Réptil: '🦎', Outro: '🐾',
+};
 
 export default function PacientesPage() {
   const router = useRouter();
@@ -51,7 +59,6 @@ export default function PacientesPage() {
       setPacientes(pacRes.data.data);
       setTotal(pacRes.data.total);
       setTotalPages(pacRes.data.totalPages);
-      // Tutores só são necessários para o formulário de cadastro/edição.
       if (podeVerTutores) {
         const tutRes = await api.get('/tutores');
         setTutores(tutRes.data);
@@ -59,7 +66,7 @@ export default function PacientesPage() {
     } finally { setLoading(false); }
   }
 
-  async function buscar(s: string) {
+  function buscar(s: string) {
     setSearch(s);
     setPage(1);
     carregarDados(s, 1);
@@ -101,125 +108,131 @@ export default function PacientesPage() {
     carregarDados();
   }
 
-  const especieEmoji: Record<string, string> = {
-    Cão: '🐶', Gato: '🐱', Ave: '🐦', Coelho: '🐰', Hamster: '🐹', Réptil: '🦎', Outro: '🐾',
-  };
-
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">🐶 Pacientes</h1>
-        {podeEscrever && (
-          <button onClick={() => abrirModal()} className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
-            + Novo Paciente
-          </button>
+      <PageHeader
+        title="Pacientes"
+        subtitle="Animais atendidos pela clínica"
+        icon={<Heart size={20} />}
+        actions={podeEscrever && (
+          <button onClick={() => abrirModal()} className="btn btn-primary"><Plus size={16} /> Novo paciente</button>
         )}
+      />
+
+      <div className="relative mb-4 max-w-md">
+        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint pointer-events-none" />
+        <input type="search" placeholder="Buscar por nome, espécie ou raça..." value={search} onChange={(e) => buscar(e.target.value)} className="input pl-10" />
       </div>
 
-      <div className="mb-4">
-        <input type="text" placeholder="Buscar por nome, espécie ou raça..." value={search} onChange={(e) => buscar(e.target.value)} className="w-full md:w-96 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500" />
-      </div>
-
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-x-auto">
+      <div className="card overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-gray-400">Carregando...</div>
+          <div className="p-5 space-y-3">{[...Array(6)].map((_, i) => <div key={i} className="skeleton h-10 w-full" />)}</div>
         ) : pacientes.length === 0 ? (
-          <div className="p-8 text-center text-gray-400">Nenhum paciente cadastrado</div>
+          <EmptyState
+            icon={<Heart size={24} />}
+            title="Nenhum paciente cadastrado"
+            description="Cadastre o primeiro animal para começar o histórico clínico."
+            action={podeEscrever ? <button onClick={() => abrirModal()} className="btn btn-primary"><Plus size={16} /> Novo paciente</button> : undefined}
+          />
         ) : (
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-800">
-              <tr>
-                {['Animal', 'Espécie', 'Raça', 'Sexo', 'Peso', 'Tutor', 'Ações'].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">{h}</th>
+          <div className="overflow-x-auto">
+            <table className="data-table">
+              <thead>
+                <tr>{['Animal', 'Espécie', 'Raça', 'Sexo', 'Peso', 'Tutor', ''].map((h) => <th key={h}>{h}</th>)}</tr>
+              </thead>
+              <tbody>
+                {pacientes.map((p) => (
+                  <tr key={p.id}>
+                    <td className="cell-strong">
+                      <div className="flex items-center gap-2.5">
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-brand-50 dark:bg-brand-950/60 text-base">{especieEmoji[p.especie] || '🐾'}</span>
+                        <span>{p.nome}</span>
+                        {p.alergias && <span className="badge badge-red"><TriangleAlert size={11} /> Alergia</span>}
+                      </div>
+                    </td>
+                    <td>{p.especie}</td>
+                    <td>{p.raca || '—'}</td>
+                    <td>{p.sexo || '—'}</td>
+                    <td>{p.peso ? `${p.peso} kg` : '—'}</td>
+                    <td>{p.tutor.nome}</td>
+                    <td>
+                      <div className="flex items-center justify-end gap-3">
+                        <button onClick={() => router.push(`/pacientes/${p.id}`)} className="action-link inline-flex items-center gap-1"><Eye size={13} /> Ver</button>
+                        {podeEscrever && <button onClick={() => abrirModal(p)} className="action-link inline-flex items-center gap-1"><Pencil size={13} /> Editar</button>}
+                        {podeEscrever && <button onClick={() => excluir(p.id)} className="action-link-danger inline-flex items-center gap-1"><Trash2 size={13} /> Excluir</button>}
+                      </div>
+                    </td>
+                  </tr>
                 ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-              {pacientes.map((p) => (
-                <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
-                    {especieEmoji[p.especie] || '🐾'} {p.nome}
-                    {p.alergias && <span className="ml-2 text-xs bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 px-1.5 py-0.5 rounded font-medium">⚠️ Alergia</span>}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{p.especie}</td>
-                  <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{p.raca || '-'}</td>
-                  <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{p.sexo || '-'}</td>
-                  <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{p.peso ? `${p.peso}kg` : '-'}</td>
-                  <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{p.tutor.nome}</td>
-                  <td className="px-4 py-3 text-sm flex gap-2">
-                    <button onClick={() => router.push(`/pacientes/${p.id}`)} className="text-brand-600 hover:text-brand-800 font-medium">Ver</button>
-                    {podeEscrever && <button onClick={() => abrirModal(p)} className="text-brand-600 hover:text-brand-800 font-medium">Editar</button>}
-                    {podeEscrever && <button onClick={() => excluir(p.id)} className="text-red-500 hover:text-red-700 font-medium">Excluir</button>}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         )}
         <Paginacao page={page} totalPages={totalPages} total={total} limit={limit} onChange={(p) => setPage(p)} />
       </div>
 
-      {modalAberto && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">{pacienteEditando ? 'Editar Paciente' : 'Novo Paciente'}</h2>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome *</label>
-                <input type="text" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} placeholder="Nome do animal" className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Espécie *</label>
-                <select value={form.especie} onChange={(e) => setForm({ ...form, especie: e.target.value })} className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
-                  <option value="">Selecione...</option>
-                  {['Cão', 'Gato', 'Ave', 'Coelho', 'Hamster', 'Réptil', 'Outro'].map((e) => <option key={e} value={e}>{e}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Raça</label>
-                <input type="text" value={form.raca} onChange={(e) => setForm({ ...form, raca: e.target.value })} placeholder="Raça do animal" className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sexo</label>
-                <select value={form.sexo} onChange={(e) => setForm({ ...form, sexo: e.target.value })} className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
-                  <option value="">Selecione...</option>
-                  <option value="Macho">Macho</option>
-                  <option value="Fêmea">Fêmea</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Peso (kg)</label>
-                <input type="number" step="0.1" value={form.peso} onChange={(e) => setForm({ ...form, peso: e.target.value })} placeholder="Ex: 5.5" className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Data de Nascimento</label>
-                <input type="date" value={form.dataNasc} onChange={(e) => setForm({ ...form, dataNasc: e.target.value })} className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tutor *</label>
-                <select value={form.tutorId} onChange={(e) => setForm({ ...form, tutorId: e.target.value })} className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
-                  <option value="">Selecione o tutor...</option>
-                  {tutores.map((t) => <option key={t.id} value={t.id}>{t.nome}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">⚠️ Alergias / Intolerâncias</label>
-                <textarea
-                  value={form.alergias}
-                  onChange={(e) => setForm({ ...form, alergias: e.target.value })}
-                  placeholder="Ex: Amoxicilina, dipirona, látex..."
-                  rows={2}
-                  className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
-                />
-              </div>
+      <Modal
+        open={modalAberto}
+        onClose={() => setModalAberto(false)}
+        title={pacienteEditando ? 'Editar paciente' : 'Novo paciente'}
+        footer={
+          <>
+            <button onClick={() => setModalAberto(false)} className="btn btn-ghost flex-1">Cancelar</button>
+            <button onClick={salvar} disabled={salvando || !form.nome || !form.especie || !form.tutorId} className="btn btn-primary flex-1">
+              {salvando ? 'Salvando...' : 'Salvar'}
+            </button>
+          </>
+        }
+      >
+        <div className="space-y-3.5">
+          <div>
+            <label className="label">Nome *</label>
+            <input type="text" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} placeholder="Nome do animal" className="input" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="label">Espécie *</label>
+              <select value={form.especie} onChange={(e) => setForm({ ...form, especie: e.target.value })} className="input">
+                <option value="">Selecione...</option>
+                {['Cão', 'Gato', 'Ave', 'Coelho', 'Hamster', 'Réptil', 'Outro'].map((e) => <option key={e} value={e}>{e}</option>)}
+              </select>
             </div>
-            <div className="flex gap-2 mt-5">
-              <button onClick={() => setModalAberto(false)} className="flex-1 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition">Cancelar</button>
-              <button onClick={salvar} disabled={salvando || !form.nome || !form.especie || !form.tutorId} className="flex-1 bg-brand-600 hover:bg-brand-700 disabled:bg-brand-400 text-white py-2 rounded-lg text-sm font-medium transition">{salvando ? 'Salvando...' : 'Salvar'}</button>
+            <div>
+              <label className="label">Sexo</label>
+              <select value={form.sexo} onChange={(e) => setForm({ ...form, sexo: e.target.value })} className="input">
+                <option value="">Selecione...</option>
+                <option value="Macho">Macho</option>
+                <option value="Fêmea">Fêmea</option>
+              </select>
             </div>
           </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="label">Raça</label>
+              <input type="text" value={form.raca} onChange={(e) => setForm({ ...form, raca: e.target.value })} placeholder="Raça" className="input" />
+            </div>
+            <div>
+              <label className="label">Peso (kg)</label>
+              <input type="number" step="0.1" value={form.peso} onChange={(e) => setForm({ ...form, peso: e.target.value })} placeholder="Ex: 5.5" className="input" />
+            </div>
+          </div>
+          <div>
+            <label className="label">Data de nascimento</label>
+            <input type="date" value={form.dataNasc} onChange={(e) => setForm({ ...form, dataNasc: e.target.value })} className="input" />
+          </div>
+          <div>
+            <label className="label">Tutor *</label>
+            <select value={form.tutorId} onChange={(e) => setForm({ ...form, tutorId: e.target.value })} className="input">
+              <option value="">Selecione o tutor...</option>
+              {tutores.map((t) => <option key={t.id} value={t.id}>{t.nome}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="label flex items-center gap-1"><TriangleAlert size={13} className="text-accent-500" /> Alergias / Intolerâncias</label>
+            <textarea value={form.alergias} onChange={(e) => setForm({ ...form, alergias: e.target.value })} placeholder="Ex: Amoxicilina, dipirona, látex..." rows={2} className="input resize-none" />
+          </div>
         </div>
-      )}
+      </Modal>
     </div>
   );
 }

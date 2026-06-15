@@ -157,11 +157,11 @@ export default function PacienteDetalhePage() {
       </div>
 
       {/* Card do paciente */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-6 mb-6">
+      <div className="card p-6 mb-6">
         <div className="flex items-start gap-4">
           <div className="text-6xl">{especieEmoji[paciente.especie] || '🐾'}</div>
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{paciente.nome}</h1>
+            <h1 className="page-title">{paciente.nome}</h1>
             <p className="text-gray-500 dark:text-gray-400">{paciente.especie}{paciente.raca ? ` • ${paciente.raca}` : ''}{paciente.sexo ? ` • ${paciente.sexo}` : ''}</p>
             <div className="flex flex-wrap gap-3 mt-3">
               {paciente.peso && (
@@ -214,7 +214,7 @@ export default function PacienteDetalhePage() {
       )}
 
       {/* Seção Vacinas */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 mb-6">
+      <div className="card p-5 mb-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">💉 Vacinas ({vacinacoes.length})</h2>
           {podeEditarVacinas && (
@@ -274,7 +274,7 @@ export default function PacienteDetalhePage() {
       </div>
 
       {/* Seção Laboratório */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 mb-6">
+      <div className="card p-5 mb-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">🔬 Laboratório ({examesLab.length})</h2>
           <button
@@ -345,13 +345,13 @@ export default function PacienteDetalhePage() {
       <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">📋 Histórico de Atendimentos</h2>
 
       {historico.length === 0 ? (
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-8 text-center text-gray-400">
+        <div className="card p-8 text-center text-gray-400">
           Nenhum atendimento registrado ainda
         </div>
       ) : (
         <div className="space-y-3">
           {historico.map((a) => (
-            <div key={a.id} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+            <div key={a.id} className="card overflow-hidden">
               <button
                 onClick={() => setAbaAberta(abaAberta === a.id ? null : a.id)}
                 className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
@@ -413,55 +413,55 @@ export default function PacienteDetalhePage() {
       {/* Modal nova vacina */}
       {modalVacina && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
+          <div className="card w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
             <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">💉 Registrar Vacina</h2>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vacina *</label>
+                <label className="label">Vacina *</label>
                 <input
                   type="text"
                   value={formVacina.vacina}
                   onChange={(e) => setFormVacina({ ...formVacina, vacina: e.target.value })}
                   placeholder="Ex: V8, Antirrábica, Gripe..."
-                  className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full input"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fabricante</label>
+                <label className="label">Fabricante</label>
                 <input
                   type="text"
                   value={formVacina.fabricante}
                   onChange={(e) => setFormVacina({ ...formVacina, fabricante: e.target.value })}
                   placeholder="Ex: Zoetis, MSD..."
-                  className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full input"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lote</label>
+                <label className="label">Lote</label>
                 <input
                   type="text"
                   value={formVacina.lote}
                   onChange={(e) => setFormVacina({ ...formVacina, lote: e.target.value })}
                   placeholder="Número do lote"
-                  className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full input"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Data de Aplicação *</label>
+                <label className="label">Data de Aplicação *</label>
                 <input
                   type="date"
                   value={formVacina.dataAplicacao}
                   onChange={(e) => setFormVacina({ ...formVacina, dataAplicacao: e.target.value })}
-                  className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full input"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Data de Vencimento</label>
+                <label className="label">Data de Vencimento</label>
                 <input
                   type="date"
                   value={formVacina.dataVencimento}
                   onChange={(e) => setFormVacina({ ...formVacina, dataVencimento: e.target.value })}
-                  className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full input"
                 />
               </div>
             </div>

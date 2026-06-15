@@ -138,7 +138,7 @@ export default function AtendimentoDetalhePage() {
       </div>
 
       {/* Card do paciente */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5">
+      <div className="card p-5">
         <div className="flex items-start gap-4">
           <div className="text-5xl">{especieEmoji[p.especie] || '🐾'}</div>
           <div className="flex-1">
@@ -167,7 +167,7 @@ export default function AtendimentoDetalhePage() {
       </div>
 
       {/* Dados clínicos */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5">
+      <div className="card p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-gray-800 dark:text-gray-100">📋 Dados Clínicos</h3>
           {!editando ? (
@@ -201,30 +201,30 @@ export default function AtendimentoDetalhePage() {
         {editando ? (
           <div className="space-y-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Queixa principal</label>
+              <label className="label">Queixa principal</label>
               <textarea
                 value={form.queixa}
                 onChange={(e) => setForm({ ...form, queixa: e.target.value })}
                 rows={2}
-                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
+                className="w-full input resize-none"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Diagnóstico</label>
+              <label className="label">Diagnóstico</label>
               <textarea
                 value={form.diagnostico}
                 onChange={(e) => setForm({ ...form, diagnostico: e.target.value })}
                 rows={2}
-                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
+                className="w-full input resize-none"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Observações</label>
+              <label className="label">Observações</label>
               <textarea
                 value={form.observacoes}
                 onChange={(e) => setForm({ ...form, observacoes: e.target.value })}
                 rows={2}
-                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
+                className="w-full input resize-none"
               />
             </div>
           </div>
@@ -247,7 +247,7 @@ export default function AtendimentoDetalhePage() {
       </div>
 
       {/* Prescrições */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5">
+      <div className="card p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-gray-800 dark:text-gray-100">💊 Prescrições ({atendimento.prescricoes.length})</h3>
           {podeVerPrescricoes && (
@@ -298,7 +298,7 @@ export default function AtendimentoDetalhePage() {
       </div>
 
       {/* Exames */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5">
+      <div className="card p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-gray-800 dark:text-gray-100">🔬 Exames ({atendimento.solicitacoesExame.length})</h3>
           {podeVerLab && (
