@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '../../../lib/api';
 import { toast } from '../../../components/Toast';
-import { can, getStoredRole } from '../../../lib/permissions';
+import { can, getStoredRole, useRole } from '../../../lib/permissions';
 
 const CATEGORIAS_EXAMES: Record<string, string[]> = {
   'Hematologia': ['Hemograma completo', 'Contagem de plaquetas', 'Reticulócitos', 'Pesquisa de hemoparasitas'],
@@ -45,7 +45,7 @@ export default function LaboratorioPage() {
   useEffect(() => { carregarDados(); }, [filtroStatus]);
 
   // Criar/gerenciar solicitações depende de poder escrever no laboratório (vet e bioquímico têm).
-  const podeCriarSolicitacao = can(getStoredRole(), 'laboratorio:write');
+  const podeCriarSolicitacao = can(useRole(), 'laboratorio:write');
 
   async function carregarDados() {
     setLoading(true);
@@ -53,7 +53,7 @@ export default function LaboratorioPage() {
       const solRes = await api.get('/laboratorio', { params: filtroStatus ? { status: filtroStatus } : {} });
       setSolicitacoes(solRes.data);
       // Lista de atendimentos só é necessária para abrir uma nova solicitação.
-      if (podeCriarSolicitacao) {
+      if (can(getStoredRole(), 'laboratorio:write')) {
         const atRes = await api.get('/atendimentos', { params: { limit: 1000 } });
         setAtendimentos(atRes.data.data);
       }

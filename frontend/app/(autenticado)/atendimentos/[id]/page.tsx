@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import api from '../../../../lib/api';
 import { toast } from '../../../../components/Toast';
-import { can, getStoredRole } from '../../../../lib/permissions';
+import { can, useRole } from '../../../../lib/permissions';
 
 interface Atendimento {
   id: string;
@@ -77,7 +77,7 @@ export default function AtendimentoDetalhePage() {
   const [form, setForm] = useState({ queixa: '', diagnostico: '', observacoes: '' });
   const [salvando, setSalvando] = useState(false);
 
-  const role = getStoredRole();
+  const role = useRole();
   const podeEditar = can(role, 'atendimentos:write');
   const podeVerPrescricoes = can(role, 'prescricoes:read');
   const podeVerLab = can(role, 'laboratorio:read');

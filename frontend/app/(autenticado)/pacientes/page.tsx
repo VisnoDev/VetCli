@@ -9,7 +9,7 @@ import Paginacao from '../../../components/Paginacao';
 import PageHeader from '../../../components/ui/PageHeader';
 import Modal from '../../../components/ui/Modal';
 import EmptyState from '../../../components/ui/EmptyState';
-import { can, getStoredRole } from '../../../lib/permissions';
+import { can, getStoredRole, useRole } from '../../../lib/permissions';
 
 interface Tutor {
   id: string;
@@ -49,8 +49,8 @@ export default function PacientesPage() {
 
   useEffect(() => { carregarDados(search, page); }, [page]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const podeVerTutores = can(getStoredRole(), 'tutores:read');
-  const podeEscrever = can(getStoredRole(), 'pacientes:write');
+  const role = useRole();
+  const podeEscrever = can(role, 'pacientes:write');
 
   async function carregarDados(s = search, p = page) {
     setLoading(true);
@@ -59,7 +59,8 @@ export default function PacientesPage() {
       setPacientes(pacRes.data.data);
       setTotal(pacRes.data.total);
       setTotalPages(pacRes.data.totalPages);
-      if (podeVerTutores) {
+      // Tutores só são necessários para o formulário (cargo que pode escrever/ver tutores).
+      if (can(getStoredRole(), 'tutores:read')) {
         const tutRes = await api.get('/tutores');
         setTutores(tutRes.data);
       }

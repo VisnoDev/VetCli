@@ -7,7 +7,7 @@ import { toast } from '../../../components/Toast';
 import PageHeader from '../../../components/ui/PageHeader';
 import Modal from '../../../components/ui/Modal';
 import EmptyState from '../../../components/ui/EmptyState';
-import { can, getStoredRole } from '../../../lib/permissions';
+import { can, useRole } from '../../../lib/permissions';
 
 interface Medicamento { id: string; nome: string; principioAtivo?: string; categoria?: string; }
 interface LinhaEstoque { id: string; quantidade: number; minimo: number; updatedAt: string; medicamento: Medicamento; }
@@ -28,7 +28,7 @@ export default function EstoquePage() {
   const debounceBuscaRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const linhasRef = useRef(linhas);
   linhasRef.current = linhas;
-  const podeEditar = can(getStoredRole(), 'estoque:write');
+  const podeEditar = can(useRole(), 'estoque:write');
 
   const filtrarJaNoEstoque = useCallback((lista: Medicamento[]) => {
     const ids = new Set(linhasRef.current.map((l) => l.medicamento.id));

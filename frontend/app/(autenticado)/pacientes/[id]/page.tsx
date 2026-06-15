@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import api from '../../../../lib/api';
 import { toast } from '../../../../components/Toast';
-import { can, getStoredRole } from '../../../../lib/permissions';
+import { can, getStoredRole, useRole } from '../../../../lib/permissions';
 
 interface Paciente {
   id: string;
@@ -79,10 +79,7 @@ export default function PacienteDetalhePage() {
     carregarDados();
   }, [id]);
 
-  const role = getStoredRole();
-  const podeVerVacinas = can(role, 'vacinacoes:read');
-  const podeVerLab = can(role, 'laboratorio:read');
-  const podeEditarVacinas = can(role, 'vacinacoes:write');
+  const podeEditarVacinas = can(useRole(), 'vacinacoes:write');
 
   async function carregarDados() {
     setLoading(true);
@@ -94,11 +91,11 @@ export default function PacienteDetalhePage() {
       setPaciente(pacRes.data);
       setHistorico(histRes.data);
       // Seções secundárias: só busca o que o cargo pode ver.
-      if (podeVerVacinas) {
+      if (can(getStoredRole(), 'vacinacoes:read')) {
         const vacRes = await api.get(`/vacinacoes/paciente/${id}`);
         setVacinacoes(vacRes.data);
       }
-      if (podeVerLab) {
+      if (can(getStoredRole(), 'laboratorio:read')) {
         const labRes = await api.get(`/laboratorio/paciente/${id}`);
         setExamesLab(labRes.data);
       }

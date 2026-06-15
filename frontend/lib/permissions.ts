@@ -4,6 +4,8 @@
  * IMPORTANTE: isto é só UX — a autorização real é feita no backend.
  */
 
+import { useEffect, useState } from 'react';
+
 export type Role = 'SUPER_ADMIN' | 'ADMIN' | 'VETERINARIO' | 'RECEPCIONISTA' | 'BIOQUIMICO';
 
 export const PERMISSIONS = [
@@ -67,7 +69,7 @@ export function can(role: Role | undefined | null, perm: Permission): boolean {
   return PERMISSIONS_BY_ROLE[role]?.includes(perm) ?? false;
 }
 
-/** Lê o cargo do usuário salvo no localStorage. */
+/** Lê o cargo do usuário salvo no localStorage. Use em handlers/efeitos, NÃO no render. */
 export function getStoredRole(): Role | null {
   if (typeof window === 'undefined') return null;
   try {
@@ -77,4 +79,15 @@ export function getStoredRole(): Role | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Hook seguro para SSR: retorna null no primeiro render (servidor e cliente
+ * batem) e o cargo real só após a montagem. Use para esconder/mostrar UI no
+ * JSX e evitar erro de hidratação.
+ */
+export function useRole(): Role | null {
+  const [role, setRole] = useState<Role | null>(null);
+  useEffect(() => { setRole(getStoredRole()); }, []);
+  return role;
 }

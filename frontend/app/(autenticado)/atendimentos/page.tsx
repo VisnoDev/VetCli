@@ -10,7 +10,7 @@ import BuscaSelect from '../../../components/BuscaSelect';
 import PageHeader from '../../../components/ui/PageHeader';
 import Modal from '../../../components/ui/Modal';
 import EmptyState from '../../../components/ui/EmptyState';
-import { can, getStoredRole } from '../../../lib/permissions';
+import { can, useRole } from '../../../lib/permissions';
 
 interface Tutor { id: string; nome: string; }
 interface Paciente { id: string; nome: string; especie: string; tutor: Tutor; }
@@ -46,7 +46,7 @@ export default function AtendimentosPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const limit = 20;
-  const podeEscrever = can(getStoredRole(), 'atendimentos:write');
+  const podeEscrever = can(useRole(), 'atendimentos:write');
 
   useEffect(() => { carregarDados(search, page); }, [page]); // eslint-disable-line react-hooks/exhaustive-deps
 
